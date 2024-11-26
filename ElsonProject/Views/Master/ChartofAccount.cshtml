@@ -1,0 +1,192 @@
+﻿
+@{
+    ViewBag.Title = "ChartofAccount";
+}
+<style>
+    .nested {
+        display: none;
+        padding-left: 20px;
+    }
+
+    .caret {
+        cursor: pointer;
+        user-select: none;
+        padding-right: 5px;
+    }
+
+        .caret::before {
+            content: "►";
+            padding-right: 5px;
+        }
+
+    .caret-down::before {
+        content: "▼";
+    }
+
+    .active {
+        display: block;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <fieldset class="border p-1">
+                                <legend class="float-none w-auto p-1">Chart of Account</legend>
+
+                                <div id="tree-container"></div>
+
+                            </fieldset>
+                        </div>
+                        <div class="col-md-6">
+                            <fieldset class="border p-1">
+                                <legend class="float-none w-auto p-1">Company</legend>
+                                <div class="col-md-12 companycheck" style="margin-top: 1%;">
+                                    
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            @*<button class="dropdown-item rateupdate" href="/Master/" data-bs-toggle="modal" data-bs-target="#Add">Add</button>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Add Sub User</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="/User/AddSubUsers">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <input type="text" id="UFAId" name="UFAId" hidden />
+                                <input type="text" id="userid" name="userid" hidden />
+
+                                <input type="text" id="AccountCode" name="AccountCode" class="form-control" placeholder="AccountCode ">
+                                <label class="form-control-label " id="username" style="display:none;color:red;">Please Enter a Field</label>
+
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <input type="text" id="ParentCode" name="ParentCode" class="form-control" placeholder=" ParentCode ">
+                                <label class="form-control-label " id="phones" style="display:none;color:red;">Please Enter a Field</label>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 pt-1">
+                            <div class="form-group">
+                                <input type="text" id="Levelno" name="Levelno" class="form-control" placeholder=" Levelno ">
+                                <label class="form-control-label " id="Levelno" style="display:none;color:red;">Please Enter a Field</label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-6 pt-1">
+                            <div class="form-group">
+                                <textarea class="form-control" id="Description" name="Description"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6 pt-1">
+                            <div class="form-group">
+                                <select class="form-select" name="otpselection" id="otpselection">
+                                    <option value="100">Email</option>
+                                    <option value="010">Whatsapp</option>
+                                    <option value="001">SMS</option>
+                                    <option value="110">Email and Whatsapp</option>
+                                    <option value="011">Whatsapp and SMS</option>
+                                    <option value="101">Email and SMS</option>
+                                    <option value="111">Email Whatsapp and SMS</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6  form-group-default ct-toggle pt-1">
+                            <label>Status</label>
+                            <label class="switch">
+                                <input type="checkbox" name="status" id="status">
+                                <span class="slider round"></span>
+                            </label>
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $.post("/Master/ChartAccount", { CampId: '0001' }, function (data) {
+            buildTree(data.data);
+            var str = "";
+            $.each(data.company, function (index, item) {
+                debugger
+                str += " <div class='form-group ct-toggle'><label>"+item[1].Value+"</label>"+
+                        "<label class='switch'>&nbsp;&nbsp;"+
+                        "<input type='checkbox' class='checkbox' name=" + item[0].Key + " id=" + item[0].Key +">"+
+                            "<span class='slider round'></span>"+
+                        "</label></div><br/>";
+            });
+            $(".companycheck").html(str);
+
+
+        });
+    });
+
+    function buildTree(data) {
+        const treeHTML = createTreeHTML(data);
+        document.getElementById("tree-container").appendChild(treeHTML);
+
+    }
+
+
+    function createTreeHTML(tree) {
+        const ul = document.createElement("ul");
+
+        tree.forEach(node => {
+            const li = document.createElement("li");
+            li.innerHTML = `<span class="caret">${node.AcctDesc} (${node.AcctCode})</span>`;
+
+            if (node.Children && node.Children.length > 0) {
+                const childrenUl = createTreeHTML(node.Children);  // Recursive call for children
+                childrenUl.classList.add("nested");
+                li.appendChild(childrenUl);
+
+                li.querySelector(".caret").addEventListener("click", function () {
+                    this.nextSibling.classList.toggle("active");
+                    this.classList.toggle("caret-down");
+                });
+            }
+            ul.appendChild(li);
+        });
+
+        return ul;
+    }
+</script>
+

@@ -1,0 +1,52 @@
+﻿@model ElsonProject.Models.UmoModel
+ <div class="modal-body">
+    <form id="forms" method="post" action="/Master/UMO">
+        <div class="row pt-1">
+            @*<div class="col-lg-6">
+                    <label>UMO Code</label>
+                    @Html.TextBoxFor(m => m.UMOCode, null, new { @class = "form-control", @placeholder = "UMOCode " })
+                    @Html.ValidationMessageFor(m => m.UMOCode)
+                    <label class="form-control-label " id="UMOCode" style="display:none;color:red;">Please Enter a Field</label>
+                </div>*@
+                    @Html.HiddenFor(model => model.UMOCode)
+            <div class="col-lg-6">
+                <label>UMO Name</label>
+                @Html.TextBoxFor(m => m.UMOName, null, new { @class = "form-control", @placeholder = "UMOName",@name= "UMONames", @id="UMONames" })
+                @Html.ValidationMessageFor(m => m.UMOName)
+            </div>
+            <div class="col-lg-6  form-group-default ct-toggle pt-2">
+                <label>Code Active</label>
+                <br />
+                <label class="switch">
+                    <input type="checkbox" name="Active" id="Active">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    <button type="submit" id="saves" class="btn btn-primary" form="forms">Save</button>
+</div>
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script>
+
+    $(function () {
+        debugger
+     if ("@TempData["Status"]" !== "0") {
+         $('[name="Active"]').prop('checked', true);
+         } else {
+         $('[name="Active"]').prop('checked', false);
+         }
+  });
+    $("#saves").click(function () {
+        if ($('[name="Active"]').is(':checked')) {
+            $('[name="Active"]').val("1");
+        }
+        else {
+            $('[name="Active"]').val("0");
+        }
+    });
+</script>
